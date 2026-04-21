@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        button {
+            padding: 6px 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .admin-section {
+            margin-top: 40px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background: #007bff;
+            color: white;
+        }
+
+        input, select {
+            padding: 5px;
+        }
+
+        .action-btn {
+            background: #007bff;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .success {
+            color: green;
+            text-align: center;
+        }
+
+        .error {
+            color: red;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="topbar">
+        <h2>Dashboard</h2>
+        <form method="POST" action="/logout">
+            <button type="submit">Logout</button>
+        </form>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="{{ 'success' if category == 'success' else 'error' }}">
+                    <p>{{ message }}</p>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <p>Welcome, {{ g.session_data['username'] }}!</p>
+    <p>You are a(n) {{ g.session_data['role'] }}</p>
+    <p>Want to upload a document? <a href="/upload">Click here!</a></p>
+
+    {% if documents %}
+    <h2>Documents:</h2>
+    <ul>
+    {% for document in documents %}
+    <li>
+        <p>{{document.owner}}</p>
+        <br>
+        <a href="/document/{{document.id}}">{{document.name}}</a>
+        <br>
+        <form method="POST" action="/document/delete/{{document.id}}">
+            <button type="submit">Delete</button>
+        </form>
+    </li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+
+    {# ===== ADMIN PANEL ===== #}
+    {# users will be set only if the current user is an admin #}
+    {% if users %}
+    <div class="admin-section">
+        <h3>Admin Panel - User Management</h3>
+
+        <table>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>New Password</th>
+                <th>Actions</th>
+            </tr>
+
+            {% for u in users %}
+            <tr>
+                <td>{{ u.username }}</td>
+                <td>{{ u.email }}</td>
+
+                <!-- ROLE CHANGE -->
+                <td>
+                    <form method="POST" action="/admin/update_role">
+                        <input type="hidden" name="username" value="{{ u.username }}">
+                        <select name="role">
+                            <option value="user" {% if u.role == "user" %}selected{% endif %}>user</option>
+                            <option value="admin" {% if u.role == "admin" %}selected{% endif %}>admin</option>
+                        </select>
+                        <button type="submit" class="action-btn">Update</button>
+                    </form>
+                </td>
+
+                <!-- PASSWORD CHANGE -->
+                <td>
+                    <form method="POST" action="/admin/change_password">
+                        <input type="hidden" name="username" value="{{ u.username }}">
+                        <input type="password" name="new_password" placeholder="New password" required>
+                        <button type="submit" class="action-btn">Set</button>
+                    </form>
+                </td>
+
+                <!-- DELETE USER -->
+                <td>
+                    <form method="POST" action="/admin/delete_user" onsubmit="return confirm('Delete this user?');">
+                        <input type="hidden" name="username" value="{{ u.username }}">
+                        <button type="submit" class="delete-btn">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% endif %}
+
+</div>
+
+</body>
+</html>

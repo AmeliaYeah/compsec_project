@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        .section {
+            margin-top: 20px;
+        }
+
+        a.button-link {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 15px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .share-box {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .share-box input {
+            flex: 1;
+            padding: 10px;
+        }
+
+        .share-box button {
+            padding: 10px 15px;
+            border: none;
+            background: #28a745;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .message {
+            margin-top: 10px;
+            color: green;
+        }
+    </style>
+
+    <script>
+        function copyLink() {
+            const input = document.getElementById("shareLink");
+            input.select();
+            input.setSelectionRange(0, 99999);
+
+            navigator.clipboard.writeText(input.value);
+
+            document.getElementById("copyMessage").innerText = "Link copied!";
+        }
+    </script>
+</head>
+<body>
+
+<div class="container">
+    <h2>{{ document.name }}</h2>
+
+    <div class="section">
+        <strong>Full Document:</strong><br>
+        <a href="{{ document.url | safe }}" class="button-link" target="_blank">
+            View / Download
+        </a>
+    </div>
+
+    <div class="section">
+        <strong>Share Link:</strong>
+        <div class="share-box">
+            <input 
+                type="text" 
+                id="shareLink" 
+                value="{{ document.share_url | safe }}" 
+                readonly
+            >
+            <button onclick="copyLink()">Copy</button>
+        </div>
+        <div id="copyMessage" class="message"></div>
+    </div>
+</div>
+
+</body>
+</html>

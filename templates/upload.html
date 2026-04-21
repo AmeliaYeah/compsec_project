@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload Document</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        input, button {
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+        }
+
+        input[type="file"] {
+            padding: 5px;
+        }
+
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .message {
+            color: red;
+            text-align: center;
+        }
+
+        .success {
+            color: green;
+            text-align: center;
+        }
+
+        .link {
+            text-align: center;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Upload Document</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="{{ 'success' if category == 'success' else 'message' }}">
+                    <p>{{ message }}</p>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="/upload" enctype="multipart/form-data">
+        <input type="text" name="name" required>
+        
+        <input type="file" name="file" required>
+
+        <button type="submit">Upload</button>
+    </form>
+
+    <div class="link">
+        <a href="/dashboard">Back to Dashboard</a>
+    </div>
+</div>
+
+</body>
+</html>
