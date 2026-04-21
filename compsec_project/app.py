@@ -127,7 +127,7 @@ def require_role(role):
 					"role": g.session_data["role"],
 					"required_role": role
 				})
-				abort(403) # Forbidden
+				return redirect("/login")
 			return f(*args, **kwargs)
 		return decorated_function
 	return decorator
