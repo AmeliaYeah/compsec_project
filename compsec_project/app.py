@@ -20,7 +20,7 @@ _security_log = SecurityLogger()
 def log_event(event_type, details=None, severity='INFO'):
 	_security_log.log_event(
 		event_type,
-		None if g.session_data == None else g.session_data["username"],
+		None if g.get("session_data") == None else g.session_data["username"],
 		details,
 		request.remote_addr,
 		request.headers.get("User-Agent"),
@@ -458,11 +458,6 @@ def update_user_role():
 		flash(f"Role must be admin or user; {role} isn't a valid role")
 		return redirect("/dashboard")
 
-	# if we're setting "admin" to "user", disallow
-	if role == "user" and username == "admin":
-		flash("Can't set administrator to user")
-		return redirect("/dashboard")
-
 	# set role
 	res = login_manager.change_user(username, role=role)
 	if res == None:
@@ -480,7 +475,7 @@ def update_user_role():
 def change_pwd():
 	# get username and password
 	username = request.form.get("username")
-	passwd = request.form.get("password")
+	passwd = request.form.get("new_password")
 	if not username or not passwd:
 		flash("You must specify username and their target password")
 		return redirect("/dashboard")
