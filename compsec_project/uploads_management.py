@@ -1,5 +1,7 @@
 from .encrypted_storage import EncryptedStorage
 from os import urandom
+from hashlib import sha256
+from base64 import b64decode,b64encode
 
 class UploadsManager():
 	def __init__(self, session_data):
@@ -65,3 +67,23 @@ class UploadsManager():
 		data = self.storage.load_encrypted()
 		del data[doc_id]
 		self.storage.save_encrypted(data)
+
+	def edit_document(self, doc_id, new_name=None, new_data=None):
+		# get the document
+		data = self.storage.load_encrypted()
+		doc = data.get(doc_id)
+
+		# update the document
+		return_dat = {}
+		if new_name:
+			return_dat["name"] = new_name
+			return_dat["old_name"] = doc["name"]
+			doc["name"] = new_name
+		if new_data:
+			return_dat["data"] = sha256(new_data).hexdigest()
+			return_dat["old_data"] = sha256(b64decode(doc["data"])).hexdigest()
+			doc["data"] = b64encode(new_data).decode("ascii")
+
+		# save the document, returned the changed stuff
+		self.storage.save_encrypted(data)
+		return return_dat

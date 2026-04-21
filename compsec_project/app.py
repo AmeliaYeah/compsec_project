@@ -315,7 +315,7 @@ def main():
 def delete_document(doc_id):
 	# get the document
 	uploads = UploadsManager(g.session_data)
-	doc, access_denied = uploads.get_document(doc_id, False)
+	doc, access_denied = uploads.get_document(doc_id)
 	if not doc:
 		if access_denied:
 			log_event("UNAUTHORIZED_DOCUMENT_DELETE", {
@@ -332,6 +332,34 @@ def delete_document(doc_id):
 	})
 
 	# redirect to dashboard
+	return redirect("/dashboard")
+
+@app.route("/document/edit/<doc_id>", methods=["POST"])
+@require_auth
+def edit_document(doc_id):
+	# get the document
+	uploads = UploadsManager(g.session_data)
+	doc, access_denied = uploads.get_document(doc_id)
+	if not doc:
+		if access_denied:
+			log_event("UNAUTHORIZED_DOCUMENT_EDIT", {
+				"doc_id": doc_id
+			}, severity="WARNING")
+		return redirect("/")
+
+	# edit the document
+	res = uploads.edit_document(
+		doc_id,
+		new_name=request.form.get("name"),
+		new_data=request.files.get("file").read()
+	)
+
+	# log, then display for user
+	log_event("AUTHORIZED_DOCUMENT_EDIT", {"doc_id": doc_id}|res)
+	if "name" in res:
+		flash(f"Changed {res['old_name']} to {res['name']}")
+	if "data" in res:
+		flash(f"File hash changed from {res['old_data']} to {res['data']}")
 	return redirect("/dashboard")
 
 @app.route("/document/<doc_id>", methods=["GET"])
@@ -495,4 +523,4 @@ if __name__ == "__main__":
 		print("It is recommended to memorize this password and then clear it from this terminal and anywhere else.")
 
 	# run the site
-	app.run(ssl_context=("cert.pem", "key.pem"), host="0.0.0.0", port=5000)
+	app.run(ssl_context=("cert.pem", "key.pem"), host="0.0.0.0", port=5000, debug=False)

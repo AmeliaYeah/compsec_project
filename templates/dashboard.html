@@ -81,6 +81,69 @@
             color: red;
             text-align: center;
         }
+
+        .documents {
+    margin-top: 30px;
+}
+
+.doc-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.doc-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    background: #fafafa;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.doc-info {
+    text-align: left;
+}
+
+.doc-name {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.doc-owner {
+    font-size: 12px;
+    color: #666;
+}
+
+.doc-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.doc-actions a {
+    text-decoration: none;
+    padding: 6px 10px;
+    background: #007bff;
+    color: white;
+    border-radius: 5px;
+    font-size: 12px;
+}
+
+.edit-btn {
+    background: #ffc107;
+    color: black;
+}
+
+.delete-btn {
+    background: #dc3545;
+    color: white;
+}
+
+.edit-form {
+    margin-top: 10px;
+}
     </style>
 </head>
 <body>
@@ -108,21 +171,52 @@
     <p>Want to upload a document? <a href="/upload">Click here!</a></p>
 
     {% if documents %}
-    <h2>Documents:</h2>
-    <ul>
-    {% for document in documents %}
-    <li>
-        <p>{{document.owner}}</p>
-        <br>
-        <a href="/document/{{document.id}}">{{document.name}}</a>
-        <br>
-        <form method="POST" action="/document/delete/{{document.id}}">
-            <button type="submit">Delete</button>
-        </form>
-    </li>
-    {% endfor %}
-    </ul>
-    {% endif %}
+<div class="documents">
+    <h2>Your Documents</h2>
+
+    <div class="doc-grid">
+        {% for document in documents %}
+        <div class="doc-card">
+
+            <div class="doc-info">
+                <div class="doc-name">{{ document.name }}</div>
+                <div class="doc-owner">Owner: {{ document.owner }}</div>
+
+                <!-- EDIT FORM (rename + replace file) -->
+                <div class="edit-form">
+                    <form method="POST" 
+                          action="/document/edit/{{ document.id }}" 
+                          enctype="multipart/form-data">
+
+                        <input type="text" 
+                               name="name" 
+                               placeholder="New name (optional)">
+
+                        <input type="file" 
+                               name="file">
+
+                        <button type="submit" class="edit-btn">
+                            Update
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="doc-actions">
+                <a href="/document/{{ document.id }}">View</a>
+
+                <form method="POST" 
+                      action="/document/delete/{{ document.id }}" 
+                      onsubmit="return confirm('Delete this document?');">
+                    <button type="submit" class="delete-btn">Delete</button>
+                </form>
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
 
     {# ===== ADMIN PANEL ===== #}
     {# users will be set only if the current user is an admin #}
